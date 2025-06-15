@@ -184,7 +184,7 @@ class VSDesignerView(IAccessible):
     @script(
         # Translators: Gesture description
         description=_("Says current control in the property editor."),
-        category=_("Otto VS"),
+        category=_("WinForms Designer Accessibilizer"),
         gesture="kb:NVDA+j"
     )
     def script_announce_selected_component(self, gesture):
