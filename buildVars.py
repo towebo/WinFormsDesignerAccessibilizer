@@ -25,7 +25,7 @@ addon_info = {
 	# Translators: Long description to be shown for this add-on on add-on information from add-on store
 	"addon_description": _("""Makes the out of process WinForms designer in Visual Studio announce components as they are selected."""),
 	# version
-	"addon_version": "1.0",
+	"addon_version": "1.0.1",
 	# Author(s)
 	"addon_author": "Karl-Otto Rosenqvist <karl-otto@mawingu.se>",
 	# URL for the add-on documentation support

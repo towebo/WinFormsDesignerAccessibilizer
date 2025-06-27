@@ -77,6 +77,7 @@ class AppModule(appModuleHandler.AppModule):
 class VSDesignerView(IAccessible):
 
     last_component = ""
+    has_focus = False
     components_combo = None
 
     def initOverlayClass(self):
@@ -90,6 +91,14 @@ class VSDesignerView(IAccessible):
         except Exception as e:
             log.info("Fel i designer selected: %s" % e)
             ui.message("Fel i designer selected: %s" % e)
+
+    def event_gainFocus(self):
+        has_focus = true
+        super().event_gainFocus()
+
+    def event_loseFocus(self):
+        has_focus = false
+        super().event_loseFocus()
 
     def ensure_components_combo(self):
         if VSDesignerView.components_combo is None:
@@ -115,8 +124,9 @@ class VSDesignerView(IAccessible):
     )
     def script_keyTab(self, gesture):
         try:
-            gesture.send()
-            core.callLater(100, self.announce_current_component)
+            if has_focus:
+                core.callLater(100, self.announce_current_component)
+            return false
         except Exception as e:
             ui.message("Error: %s" % e)
 
@@ -125,8 +135,9 @@ class VSDesignerView(IAccessible):
     )
     def script_keyShiftTab(self, gesture):
         try:
-            gesture.send()
-            core.callLater(100, self.announce_current_component)
+            if has_focus:
+                core.callLater(100, self.announce_current_component)
+            return false
         except Exception as e:
             ui.message("Error: %s" % e)
 
@@ -135,8 +146,9 @@ class VSDesignerView(IAccessible):
     )
     def script_keyEscape(self, gesture):
         try:
-            gesture.send()
-            core.callLater(100, self.announce_current_component)
+            if has_focus:
+                core.callLater(100, self.announce_current_component)
+            return false
         except Exception as e:
             ui.message("Error: %s" % e)
 
@@ -145,8 +157,10 @@ class VSDesignerView(IAccessible):
     )
     def script_keyLeftArrow(self, gesture):
         try:
-            gesture.send()
-            core.callLater(100, self.announce_current_component)
+            if has_focus:
+                ui.message("Lefti")
+                core.callLater(100, self.announce_current_component)
+            return false
         except Exception as e:
             ui.message("Error: %s" % e)
 
@@ -155,8 +169,9 @@ class VSDesignerView(IAccessible):
     )
     def script_keyUpArrow(self, gesture):
         try:
-            gesture.send()
-            core.callLater(100, self.announce_current_component)
+            if has_focus:
+                core.callLater(100, self.announce_current_component)
+            return  false
         except Exception as e:
             ui.message("Error: %s" % e)
 
@@ -165,8 +180,9 @@ class VSDesignerView(IAccessible):
     )
     def script_keyRightArrow(self, gesture):
         try:
-            gesture.send()
-            core.callLater(100, self.announce_current_component)
+            if has_focus:
+                core.callLater(100, self.announce_current_component)
+            return false
         except Exception as e:
             ui.message("Error: %s" % e)
 
@@ -175,8 +191,9 @@ class VSDesignerView(IAccessible):
     )
     def script_keyDownArrow(self, gesture):
         try:
-            gesture.send()
-            core.callLater(100, self.announce_current_component)
+            if has_focus:
+                core.callLater(100, self.announce_current_component)
+            return false
         except Exception as e:
             ui.message("Error: %s" % e)
 
@@ -189,4 +206,5 @@ class VSDesignerView(IAccessible):
     )
     def script_announce_selected_component(self, gesture):
         self.announce_current_component()
+        return false
 
