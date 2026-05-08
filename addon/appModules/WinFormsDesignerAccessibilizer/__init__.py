@@ -17,6 +17,7 @@ import windowUtils
 import winUser
 import eventHandler
 import core
+import controlTypes
 
 
 addonHandler.initTranslation()
@@ -60,6 +61,315 @@ def findChildByName(parentObj, wantedName):
             return result
     return None
 
+def findAllChildrenByName(parentObj, wantedName, results=None):
+    if results is None:
+        results = []
+
+    try:
+        children = parentObj.children
+    except Exception:
+        return results
+
+    for child in children:
+        try:
+            if child.name == wantedName:
+                results.append(child)
+        except Exception:
+            pass
+
+        findAllChildrenByName(child, wantedName, results)
+
+    return results
+
+
+def findPropertyRow(propertiesTable, propertyName):
+    try:
+        children = propertiesTable.children
+    except Exception:
+        return None
+
+    for child in children:
+        try:
+            if child.name == propertyName:
+                return child
+        except Exception:
+            pass
+
+    return None
+
+
+def getPropertyValue(propertiesTable, propertyName):
+    row = findPropertyRow(propertiesTable, propertyName)
+    if row is None:
+        return None
+
+    try:
+        row.setFocus()
+    except Exception:
+        pass
+
+    try:
+        for child in row.children:
+            if getattr(child, "role", None) == controlTypes.Role.EDITABLETEXT:
+                return getattr(child, "value", None)
+    except Exception:
+        pass
+
+    return None
+def getPropertyValueBySelectingRow(propertiesTable, propertyName):
+    row = findPropertyRow(propertiesTable, propertyName)
+    if row is None:
+        return None
+
+    try:
+        row.setFocus()
+    except Exception:
+        pass
+
+    # Give VS time to create the value editor.
+    core.callLater(50, lambda: None)
+
+    try:
+        for child in row.children:
+            value = getattr(child, "value", None)
+            name = getattr(child, "name", None)
+
+            if value:
+                return value
+
+            if name and name != propertyName:
+                return name
+    except Exception:
+        pass
+
+    return None
+
+
+def findPropertiesPane(root):
+    matches = findAllChildrenByName(root, "Properties")
+
+    for obj in matches:
+        try:
+            if obj.role == controlTypes.Role.PANE:
+                return obj
+        except Exception:
+            pass
+
+    return None
+
+def findPropertiesPane(root):
+    matches = findAllChildrenByName(root, "Properties")
+
+    for obj in matches:
+        try:
+            if obj.role == controlTypes.Role.PANE:
+                if containsText(obj, "Location") or containsText(obj, "Size"):
+                    return obj
+        except Exception:
+            pass
+
+    return None
+
+def getPropertyValueBySelectingRow(propertiesTable, propertyName):
+    row = findPropertyRow(propertiesTable, propertyName)
+    if row is None:
+        return None
+
+    try:
+        row.setFocus()
+    except Exception:
+        pass
+
+    # Give VS time to create the value editor.
+    core.callLater(50, lambda: None)
+
+    try:
+        for child in row.children:
+            value = getattr(child, "value", None)
+            name = getattr(child, "name", None)
+
+            if value:
+                return value
+
+            if name and name != propertyName:
+                return name
+    except Exception:
+        pass
+
+    return None
+
+def selectPropertyRow(row):
+    try:
+        row.setFocus()
+    except Exception:
+        pass
+
+    try:
+        row.doAction()
+    except Exception:
+        pass
+
+def getPropertyValueNoFocus(propertiesTable, propertyName):
+    row = findPropertyRow(propertiesTable, propertyName)
+    if row is None:
+        return None
+
+    try:
+        for child in row.children:
+            if getattr(child, "role", None) == controlTypes.Role.EDITABLETEXT:
+                return getattr(child, "value", None)
+    except Exception:
+        pass
+
+    return None
+
+def dumpTree(obj, level=0, maxLevel=8):
+    if obj is None or level > maxLevel:
+        return
+
+    try:
+        log.info(
+            "%srole=%r name=%r value=%r class=%r UIA=%r controlType=%r automationId=%r"
+            % (
+                "  " * level,
+                getattr(obj, "role", None),
+                getattr(obj, "name", None),
+                getattr(obj, "value", None),
+                getattr(obj, "windowClassName", None),
+                isinstance(obj, UIA),
+                getattr(obj, "UIAElement", None).cachedControlType if hasattr(obj, "UIAElement") else None,
+                getattr(obj, "UIAElement", None).cachedAutomationID if hasattr(obj, "UIAElement") else None,
+            )
+        )
+    except Exception as e:
+        log.info("%sdump error: %s" % ("  " * level, e))
+
+    # Normal NVDA children
+    try:
+        for child in obj.children:
+            dumpTree(child, level + 1, maxLevel)
+    except Exception:
+        pass
+
+    # UIA children
+    try:
+        elem = obj.UIAElement
+        walker = UIAHandler.handler.clientObject.createTreeWalker(
+            UIAHandler.handler.clientObject.createTrueCondition()
+        )
+        childElem = walker.GetFirstChildElement(elem)
+
+        while childElem:
+            childObj = UIA(UIAElement=childElem)
+            dumpTree(childObj, level + 1, maxLevel)
+            childElem = walker.GetNextSiblingElement(childElem)
+    except Exception:
+        pass
+
+def dumpInteresting(obj, level=0, maxLevel=12):
+    if obj is None or level > maxLevel:
+        return
+
+    try:
+        name = getattr(obj, "name", "") or ""
+        role = getattr(obj, "role", None)
+        value = getattr(obj, "value", None)
+        cls = getattr(obj, "windowClassName", "")
+        controlType = None
+        automationId = None
+
+        if hasattr(obj, "UIAElement"):
+            controlType = obj.UIAElement.cachedControlType
+            automationId = obj.UIAElement.cachedAutomationID
+
+        text = "%s role=%r name=%r value=%r class=%r controlType=%r automationId=%r" % (
+            "  " * level,
+            role,
+            name,
+            value,
+            cls,
+            controlType,
+            automationId,
+        )
+
+        if (
+            "Location" in name
+            or "Size" in name
+            or "Property" in name
+            or "Properties" in name
+            or "Grid" in name
+            or "Location" in str(value)
+            or "Size" in str(value)
+        ):
+            log.info(text)
+
+    except Exception:
+        pass
+
+    try:
+        for child in obj.children:
+            dumpInteresting(child, level + 1, maxLevel)
+    except Exception:
+        pass
+
+def findPropertiesWindow():
+    # First try by visible name.
+    return findChildByName(api.getForegroundObject(), "Properties")
+
+
+def collectText(obj):
+    parts = []
+
+    try:
+        if obj.name:
+            parts.append(obj.name)
+    except Exception:
+        pass
+
+    try:
+        if obj.value:
+            parts.append(obj.value)
+    except Exception:
+        pass
+            
+    return " ".join(parts)
+
+def findPropertyValue(parentObj, propertyName):
+    """
+    Searches the accessible tree for a property row containing propertyName.
+    This is intentionally heuristic because VS property grid structures vary.
+    """
+    try:
+        children = parentObj.children
+    except Exception:
+        return None
+
+    for child in children:
+        text = collectText(child)
+        if text == propertyName:
+            # Common case: next sibling may contain the value.
+            try:
+                index = children.index(child)
+                valueObj = children[index + 1]
+                value = getattr(valueObj, "value", None) or getattr(valueObj, "name", None)
+                if value:
+                    return value
+            except Exception:
+                pass
+                    
+            # Sometimes row object contains both name and value.
+            if propertyName in text:
+                # Example: "Location 12, 34"
+                cleaned = text.replace(propertyName, "", 1).strip()
+                if cleaned:
+                    return cleaned
+                        
+                result = findPropertyValue(child, propertyName)
+                if result:
+                    return result
+                        
+            return None
+
 
 class AppModule(appModuleHandler.AppModule):
 
@@ -82,6 +392,7 @@ class VSDesignerView(IAccessible):
     last_component = ""
     has_focus = False
     components_combo = None
+    PROPERTIES_TO_REPORT = ("Location", "Size")
 
     def initOverlayClass(self):
         try:
@@ -102,6 +413,24 @@ class VSDesignerView(IAccessible):
     def event_loseFocus(self):
         self.has_focus = False
         super().event_loseFocus()
+
+
+    def announceLocationAndSize(self):
+        propertiesTable = findChildByName(api.getForegroundObject(), "Properties Window")
+        location = getPropertyValueNoFocus(propertiesTable, "Location")
+        size = getPropertyValueNoFocus(propertiesTable, "Size")        
+        
+        messages = []
+        if location:
+            messages.append("Location %s" % location)
+        if size:
+            messages.append("Size %s" % size)
+            
+        if messages:
+            ui.message(", ".join(messages))
+        else:
+            ui.message("Skit också. Location and size not found")
+
 
     def ensure_components_combo(self):
         if VSDesignerView.components_combo is None:
@@ -126,6 +455,8 @@ class VSDesignerView(IAccessible):
             if val != VSDesignerView.last_component:
                 VSDesignerView.last_component = val
                 ui.message(VSDesignerView.last_component)
+                # This doesn't work unless the property has been focused in the property editor first.
+                #core.callLater(100, self.announceLocationAndSize)
             else:
                 self.ensure_components_combo()
         except Exception as e:
