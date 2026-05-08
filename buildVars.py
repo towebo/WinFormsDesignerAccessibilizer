@@ -21,12 +21,12 @@ addon_info = AddonInfo(
 	addon_summary=_("WinForms Designer Accessibilizer"),
 	# Add-on description
 	# Translators: Long description to be shown for this add-on on add-on information from add-on store
-	addon_description=_("""Makes the out of process WinForms designer in Visual Studio announce components as they are selected."),
+	addon_description=_("""Makes the out of process WinForms designer in Visual Studio announce components as they are selected."""),
 	# version
 	addon_version="1.1.0",
 	# Brief changelog for this version
 	# Translators: what's new content for the add-on version to be shown in the add-on store
-	addon_changelog=_("""Updated to work with NVDA 2026.1. Also included code enhancements."),
+	addon_changelog=_("""Adjustments to work with NVDA 2026.1. Also corrected some minor issues."""),
 	# Author(s)
 	addon_author="Karl-Otto Rosenqvist <karl-otto@mawingu.se>",
 	# URL for the add-on documentation support
