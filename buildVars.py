@@ -26,7 +26,7 @@ addon_info = AddonInfo(
 	addon_version="1.2.0",
 	# Brief changelog for this version
 	# Translators: what's new content for the add-on version to be shown in the add-on store
-	addon_changelog=_("""Adjustments when finding the Components combobox which seems to make it work more reliably."),
+	addon_changelog=_("""Adjustments when finding the Components combobox which seems to make it work more reliably."""),
 	# Author(s)
 	addon_author="Karl-Otto Rosenqvist <karl-otto@mawingu.se>",
 	# URL for the add-on documentation support
