@@ -438,7 +438,7 @@ class VSDesignerView(IAccessible):
                 fg = api.getForegroundObject()
                 VSDesignerView.components_combo = findChildByName(fg, "Components")
                 if VSDesignerView.components_combo == None:
-                    ui.message("Error when finding components combo: It was None. Foreground Window is %s, Class: %s" % fg.name, fg.windowClassName)
+                    ui.message("Error when finding components combo: It was None. Name: %s, Class: %s" % (fg.name, fg.windowClassName))
             except Exception as e:
                 ui.message("Error when finding components combo: %s" % e)
 
