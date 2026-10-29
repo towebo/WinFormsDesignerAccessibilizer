@@ -23,10 +23,10 @@ addon_info = AddonInfo(
 	# Translators: Long description to be shown for this add-on on add-on information from add-on store
 	addon_description=_("""Makes the out of process WinForms designer in Visual Studio announce components as they are selected."""),
 	# version
-	addon_version="1.1.0",
+	addon_version="1.2.0",
 	# Brief changelog for this version
 	# Translators: what's new content for the add-on version to be shown in the add-on store
-	addon_changelog=_("""Adjustments to work with NVDA 2026.1. Also corrected some minor issues."""),
+	addon_changelog=_("""Adjustments when finding the Components combobox which seems to make it work more reliably."),
 	# Author(s)
 	addon_author="Karl-Otto Rosenqvist <karl-otto@mawingu.se>",
 	# URL for the add-on documentation support
